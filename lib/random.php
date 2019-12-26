@@ -186,8 +186,12 @@ class Random {
      */
     private function genNormal() {
         $buffer = '';
-        if (function_exists('mcrypt_create_iv')) {
-            $buffer = mcrypt_create_iv($this::BLOCK_SIZE, \MCRYPT_DEV_URANDOM);
+        if (function_exists('random_bytes')) {
+            $buffer = random_bytes($this::BLOCK_SIZE);
+        } else {
+            if (function_exists('mcrypt_create_iv')) {
+                $buffer = mcrypt_create_iv($this::BLOCK_SIZE, \MCRYPT_DEV_URANDOM);
+            }
         }
         if (function_exists('openssl_random_pseudo_bytes')) {
             $strength = true;
@@ -213,12 +217,16 @@ class Random {
      */
     private function genSecure() {
         $buffer = '';
-        if (function_exists('mcrypt_create_iv')) {
-            $buffer = mcrypt_create_iv($this::BLOCK_SIZE, \MCRYPT_DEV_RANDOM);
+        if (function_exists('random_bytes')) {
+            $buffer = random_bytes($this::BLOCK_SIZE);
+        } else {
+            if (function_exists('mcrypt_create_iv')) {
+                $buffer = mcrypt_create_iv($this::BLOCK_SIZE, \MCRYPT_DEV_URANDOM);
+            }
         }
         if (function_exists('openssl_random_pseudo_bytes')) {
             $strength = true;
-            /* Since mcrypt could have possibly generated content, 
+            /* Since mcrypt could have possibly generated content,
              * We want to merge the result of the function with the existing buffer
              */
             $tmp = $this->mergeBuffers($buffer, openssl_random_pseudo_bytes($this::BLOCK_SIZE, $strength));
